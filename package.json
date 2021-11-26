@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "The backend of Democraffic",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Democraffic/backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Democraffic/backend/issues"
+  },
+  "homepage": "https://github.com/Democraffic/backend#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "helmet": "^4.6.0"
+  }
+}
