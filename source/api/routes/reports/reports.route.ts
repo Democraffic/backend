@@ -104,17 +104,30 @@ export default function (): Router {
         res.json();
     }));
 
-    // TODO: UPVOTERS
+    
     router.put('/:id/upvoters', validateDbId('id'), asyncHandler(async (req, res) => {
+        // TODO: UPVOTERS
+        //JM Part :id is the id of the problem, right?
+        //Implement upvote or downvote feature for a problem
+        //Define (what is typedReq?) id of problem, user id, upvote/downvote
         const typedReq = req as Request & ReqIdParams;
         const id = typedReq.idParams.id;
-
-        const uid = req.headers['x-forwarded-for'] ?? req.socket.remoteAddress;
-        // Another strange comment to test push
-        // strange comment
-
-        const queryParams = req.query; // ?action='up' or ?action='down'
-
+        const uid = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        const action = req.query.action; // ?action='up' or ?action='down'; Add error handler?
+        if (action == 'up') {
+            await dbQuery<unknown>(db => {
+                return db.collection<Report>('reports').updateOne(
+                    {_id: id},
+                    { $addToSet: { upvoters: uid } }
+                )}); // dont know why upvoters is an error here, does it need to be defined in MongoDB?
+            }
+        if (action == 'down') {
+            await dbQuery<unknown>(db => {
+                return db.collection<Report>('reports').updateOne(
+                    {_id: id},
+                    { $addToSet: { upvoters: uid } }
+                )}); // dont know why upvoters is an error here, does it need to be defined in MongoDB?
+            }        
         res.json();
     }));
 
