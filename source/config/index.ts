@@ -38,6 +38,7 @@ const CONFIG = {
             MEDIA: 'media'
         }
     },
+    API_SPAM_URL: process.env.API_SPAM_URL,
     API_VERSION: packageJson.version
 };
 

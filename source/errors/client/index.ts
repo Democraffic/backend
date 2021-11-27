@@ -11,3 +11,4 @@ export * from './InvalidTokenError';
 export * from './ForeignKeyError';
 export * from './UniqueRootError';
 export * from './InvalidActionError';
+export * from './SpamDetected';

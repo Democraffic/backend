@@ -8,9 +8,10 @@ import { validateDbId } from '@/utils/validatorMiddlewares';
 import { validateBody } from '@/utils/validate';
 
 import { ReqIdParams, Report, ReportStatus } from '@/types';
-import { InternalServerError, InvalidQueryParamError, NotFoundError } from '@/errors';
+import { InternalServerError, InvalidQueryParamError, NotFoundError, SpamDetected } from '@/errors';
 
 import mediaRoute from './media/media.route';
+import { checkSpam } from '@/utils/checkSpam';
 
 export default function (): Router {
     const router = Router();
@@ -49,6 +50,10 @@ export default function (): Router {
 
         const body: Pick<Report, 'title' | 'description' | 'coordinates'> = validateBody(bodyValidator, req.body);
 
+        if (await checkSpam(body.description)) {
+            throw new SpamDetected(undefined, body.description);
+        }
+
         const id = await dbQuery<ObjectId | undefined>(async db => {
             const queryBody: Report = {
                 ...body,
@@ -80,6 +85,10 @@ export default function (): Router {
             coordinates: Joi.array().items(Joi.object({ latitude: Joi.number(), longitude: Joi.number() })).min(1)
         }).required().options({ presence: 'optional' });
         const body: Partial<Pick<Report, 'title' | 'description' | 'coordinates'>> = validateBody(bodyValidator, req.body);
+
+        if (!!body.description && await checkSpam(body.description)) {
+            throw new SpamDetected(undefined, body.description);
+        }
 
         const updated = await dbQuery<boolean>(async db => {
             const queryResult = await db.collection<Report>('reports').updateOne({ _id: id }, { $set: body });
