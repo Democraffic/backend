@@ -104,5 +104,15 @@ export default function (): Router {
         res.json();
     }));
 
+    // TODO: UPVOTERS
+    router.put('/:id/upvoters', validateDbId('id'), asyncHandler(async (req, res) => {
+        const typedReq = req as Request & ReqIdParams;
+        const id = typedReq.idParams.id;
+
+        const queryParams = req.query; // ?action='up' or ?action='down'
+
+        res.json();
+    }));
+
     return router;
 }
