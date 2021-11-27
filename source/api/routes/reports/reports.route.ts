@@ -68,6 +68,29 @@ export default function (): Router {
         res.json(id);
     }));
 
+    router.patch('/:id', validateDbId('id'), asyncHandler(async (req, res) => {
+        const typedReq = req as Request & ReqIdParams;
+        const id = typedReq.idParams.id;
+
+        const bodyValidator = Joi.object({
+            title: Joi.string().min(1).max(300),
+            description: Joi.string().min(1).max(300),
+            coordinates: Joi.array().items(Joi.object({ latitude: Joi.number(), longitude: Joi.number() })).min(1)
+        }).required().options({ presence: 'optional' });
+        const body: Partial<Pick<Report, 'title' | 'description' | 'coordinates'>> = validateBody(bodyValidator, req.body);
+
+        const updated = await dbQuery<boolean>(async db => {
+            const queryResult = await db.collection<Report>('reports').updateOne({ _id: id }, { $set: body });
+            return queryResult.matchedCount > 0;
+        });
+
+        if (!updated) {
+            throw new NotFoundError('Report not found');
+        }
+
+        res.json();
+    }));
+
     router.delete('/:id', validateDbId('id'), asyncHandler(async (req, res) => {
         const typedReq = req as Request & ReqIdParams;
         const id = typedReq.idParams.id;
