@@ -8,7 +8,7 @@ import { validateDbId } from '@/utils/validatorMiddlewares';
 import { validateBody } from '@/utils/validate';
 
 import { ReqIdParams, Report, ReportStatus } from '@/types';
-import { InternalServerError, NotFoundError } from '@/errors';
+import { InternalServerError, InvalidQueryParamError, NotFoundError } from '@/errors';
 
 import mediaRoute from './media/media.route';
 
@@ -52,7 +52,7 @@ export default function (): Router {
         const id = await dbQuery<ObjectId | undefined>(async db => {
             const queryBody: Report = {
                 ...body,
-                authorId: new ObjectId('507f191e810c19729de860ea'), // TODO: add login
+                authorId: new ObjectId('507f191e810c19729de860ea'),
                 media: [],
                 upvoters: [],
                 createdAt: new Date(),
@@ -106,30 +106,33 @@ export default function (): Router {
         res.json();
     }));
 
-    
+
     router.put('/:id/upvoters', validateDbId('id'), asyncHandler(async (req, res) => {
-        // TODO: UPVOTERS
-        //JM Part :id is the id of the problem, right?
-        //Implement upvote or downvote feature for a problem
-        //Define (what is typedReq?) id of problem, user id, upvote/downvote
         const typedReq = req as Request & ReqIdParams;
         const id = typedReq.idParams.id;
-        const uid = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-        const action = req.query.action; // ?action='up' or ?action='down'; Add error handler?
+        const uid = req.headers['x-forwarded-for'] || req.socket.remoteAddress; // just for now, ip address
+        const action = req.query.action;
+
         if (action == 'up') {
             await dbQuery<unknown>(db => {
                 return db.collection<Report>('reports').updateOne(
-                    {_id: id},
-                    { $addToSet: { upvoters: uid as any} } //would need string as uid, not implemented yet
-                )}); 
-            }
-        if (action == 'down') {
+                    { _id: id },
+                    { $addToSet: { upvoters: uid as any } }
+                )
+            });
+        }
+        else if (action == 'down') {
             await dbQuery<unknown>(db => {
                 return db.collection<Report>('reports').updateOne(
-                    {_id: id},
-                    { $pull: { upvoters: {$in : [uid]} as any} } //would need string as uid, not implemented yet
-                )}); 
-            }        
+                    { _id: id },
+                    { $pull: { upvoters: { $in: [uid] } as any } }
+                )
+            });
+        }
+        else {
+            throw new InvalidQueryParamError('Invalid action');
+        }
+
         res.json();
     }));
 
