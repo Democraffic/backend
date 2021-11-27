@@ -47,6 +47,16 @@ export default function (): Router {
 
         const body: Pick<Solution, 'title' | 'description' | 'reportId'> = validateBody(bodyValidator, req.body);
 
+        const exists = await dbQuery<boolean>(async db => {
+            const count = await db.collection('records').countDocuments({
+                _id: new ObjectId(body.reportId)
+            });
+            return count > 0;
+        });
+        if (!exists) {
+            throw new NotFoundError('Report not found');
+        }
+
         const id = await dbQuery<ObjectId | undefined>(async db => {
             const queryBody: Solution = {
                 ...body,
