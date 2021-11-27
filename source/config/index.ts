@@ -35,7 +35,7 @@ const CONFIG = {
     STORED: {
         PATH: process.env.STORED_PATH,
         PATHS: {
-            MEDIA: path.join(process.env.STORED_PATH, 'media')
+            MEDIA: 'media'
         }
     },
     API_VERSION: packageJson.version

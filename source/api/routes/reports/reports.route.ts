@@ -10,6 +10,8 @@ import { validateBody } from '@/utils/validate';
 import { ReqIdParams, Report, ReportStatus } from '@/types';
 import { InternalServerError, NotFoundError } from '@/errors';
 
+import mediaRoute from './media/media.route';
+
 export default function (): Router {
     const router = Router();
 
@@ -117,6 +119,8 @@ export default function (): Router {
 
         res.json();
     }));
+
+    router.use('/:id/media', mediaRoute());
 
     return router;
 }

@@ -11,6 +11,7 @@ export interface Coordinates {
 }
 
 export interface Report {
+    _id?: ObjectId;
     authorId: ObjectId;
     title: string;
     description: string;

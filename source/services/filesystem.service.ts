@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
-import { moveFile } from 'move-file';
+const moveFile = require('move-file');
 
 import { FileSystemError } from '@/errors';
 import logger from '@/utils/logger';
