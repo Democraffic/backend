@@ -33,7 +33,10 @@ const CONFIG = {
         PATH: process.env.TEMP_PATH
     },
     STORED: {
-        PATH: process.env.STORED_PATH
+        PATH: process.env.STORED_PATH,
+        PATHS: {
+            MEDIA: path.join(process.env.STORED_PATH, 'media')
+        }
     },
     API_VERSION: packageJson.version
 };

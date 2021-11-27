@@ -10,10 +10,32 @@ import { validateBody } from '@/utils/validate';
 import { ReqIdParams, Report, ReportStatus } from '@/types';
 import { InternalServerError, NotFoundError } from '@/errors';
 
+type TypedReq = Request & ReqIdParams & { report: Report };
+
 export default function (): Router {
-    const router = Router();
+    const router = Router({ mergeParams: true });
+
+    router.use(asyncHandler(async (req, res, next) => {
+        const typedReq = req as TypedReq;
+        const id = typedReq.idParams.id;
+
+        const report = await dbQuery<Report | null>(db => {
+            return db.collection<Report>('reports').findOne({
+                _id: id
+            });
+        });
+
+        if (report === null) {
+            throw new NotFoundError('Report not found');
+        }
+
+        typedReq.report = report;
+        next();
+    }));
 
     router.get('/', asyncHandler(async (req, res) => {
+        const typedReq = req as TypedReq;
+        
         const reports = await dbQuery<Report[]>(db => {
             return db.collection<Report>('reports').find().toArray();
         });
@@ -41,7 +63,7 @@ export default function (): Router {
     router.post('/', asyncHandler(async (req, res) => {
         const bodyValidator = Joi.object({
             title: Joi.string().min(1).max(300),
-            description: Joi.string().min(1).max(10000),
+            description: Joi.string().min(1).max(300),
             coordinates: Joi.array().items(Joi.object({ latitude: Joi.number(), longitude: Joi.number() })).min(1)
         }).required().options({ presence: 'required' });
 
