@@ -17,7 +17,7 @@ dotenv.config({
 const CONFIG = {
     NODE_ENV: process.env.NODE_ENV ?? 'development',
     SERVER: {
-        PORT: process.env.SERVER_PORT ?? 3000
+        PORT: process.env.PORT ?? process.env.SERVER_PORT ?? 3000
     },
     MONGO: {
         URL: process.env.MONGO_URL
