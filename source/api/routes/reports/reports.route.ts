@@ -118,15 +118,15 @@ export default function (): Router {
             await dbQuery<unknown>(db => {
                 return db.collection<Report>('reports').updateOne(
                     {_id: id},
-                    { $addToSet: { upvoters: uid } }
-                )}); // dont know why upvoters is an error here, does it need to be defined in MongoDB?
+                    { $addToSet: { upvoters: uid as any} } //would need string as uid, not implemented yet
+                )}); 
             }
         if (action == 'down') {
             await dbQuery<unknown>(db => {
                 return db.collection<Report>('reports').updateOne(
                     {_id: id},
-                    { $pull: { upvoters: {$in : [uid]} } }
-                )}); // dont know why upvoters is an error here, does it need to be defined in MongoDB?
+                    { $pull: { upvoters: {$in : [uid]} as any} } //would need string as uid, not implemented yet
+                )}); 
             }        
         res.json();
     }));
