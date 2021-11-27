@@ -125,7 +125,7 @@ export default function (): Router {
             await dbQuery<unknown>(db => {
                 return db.collection<Report>('reports').updateOne(
                     {_id: id},
-                    { $addToSet: { upvoters: uid } }
+                    { $pull: { upvoters: {$in : [uid]} } }
                 )}); // dont know why upvoters is an error here, does it need to be defined in MongoDB?
             }        
         res.json();
