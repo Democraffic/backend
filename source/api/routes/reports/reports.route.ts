@@ -109,6 +109,8 @@ export default function (): Router {
         const typedReq = req as Request & ReqIdParams;
         const id = typedReq.idParams.id;
 
+        const uid = req.headers['x-forwarded-for'] ?? req.socket.remoteAddress;
+
         const queryParams = req.query; // ?action='up' or ?action='down'
 
         res.json();
