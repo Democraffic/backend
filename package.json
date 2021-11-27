@@ -4,6 +4,7 @@
   "description": "The backend of Democraffic",
   "main": "index.js",
   "scripts": {
+    "postinstall": "npm run transpile",
     "transpile": "tsc -p source",
     "start": "node dist/main",
     "serve": "npm run transpile && npm start"
