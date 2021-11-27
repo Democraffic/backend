@@ -67,28 +67,27 @@ export default function (): Router {
         res.json(id);
     }));
 
-    // router.patch('/:id', validateDbId('id'), asyncHandler(async (req, res) => {
-    //     const typedReq = req as Request & ReqIdParams;
-    //     const id = typedReq.idParams.id;
+    router.patch('/:id', validateDbId('id'), asyncHandler(async (req, res) => {
+        const typedReq = req as Request & ReqIdParams;
+        const id = typedReq.idParams.id;
 
-    //     const bodyValidator = Joi.object({
-    //         title: Joi.string().min(1).max(300),
-    //         description: Joi.string().min(1).max(300),
-    //         coordinates: Joi.array().items(Joi.object({ latitude: Joi.number(), longitude: Joi.number() })).min(1)
-    //     }).required().options({ presence: 'optional' });
-    //     const body: Partial<Pick<Solution, 'title' | 'description' | 'coordinates'>> = validateBody(bodyValidator, req.body);
+        const bodyValidator = Joi.object({
+            title: Joi.string().min(1).max(300),
+            description: Joi.string().min(1).max(300)
+        }).required().options({ presence: 'optional' });
+        const body: Partial<Pick<Solution, 'title' | 'description'>> = validateBody(bodyValidator, req.body);
 
-    //     const updated = await dbQuery<boolean>(async db => {
-    //         const queryResult = await db.collection<Solution>('Solutions').updateOne({ _id: id }, { $set: body });
-    //         return queryResult.matchedCount > 0;
-    //     });
+        const updated = await dbQuery<boolean>(async db => {
+            const queryResult = await db.collection<Solution>('solutions').updateOne({ _id: id }, { $set: body });
+            return queryResult.matchedCount > 0;
+        });
 
-    //     if (!updated) {
-    //         throw new NotFoundError('Solution not found');
-    //     }
-        
-    //     res.json();
-    // }));
+        if (!updated) {
+            throw new NotFoundError('Solution not found');
+        }
+
+        res.json();
+    }));
 
     router.delete('/:id', validateDbId('id'), asyncHandler(async (req, res) => {
         const typedReq = req as Request & ReqIdParams;
