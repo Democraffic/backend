@@ -1,5 +1,6 @@
 import { Request, Router } from 'express';
 import { v4 as uuid } from 'uuid';
+import * as path from 'path';
 
 import { dbQuery, dbTransaction } from '@/services/db.service';
 import fileSystemService from '@/services/filesystem.service';
@@ -9,7 +10,7 @@ import upload from '@/utils/uploader';
 import { validateDbId } from '@/utils/validatorMiddlewares';
 
 import { ReqIdParams, Report } from '@/types';
-import { InternalServerError, NotFoundError } from '@/errors';
+import { InternalServerError, InvalidQueryParamError, NotFoundError } from '@/errors';
 
 import CONFIG from '@/config';
 import filesystemService from '@/services/filesystem.service';
@@ -53,7 +54,7 @@ export default function (): Router {
         }
 
         await dbTransaction(async (db, session) => {
-            const toPath = filesystemService.getStoredPath(CONFIG.STORED.PATHS.MEDIA);
+            const toPath = '/' + filesystemService.getStoredPath(`${CONFIG.STORED.PATHS.MEDIA}/${filename}`);
             await db.collection<Report>('reports').updateOne({ _id: typedReq.report._id }, {
                 $push: {
                     media: toPath
@@ -65,18 +66,29 @@ export default function (): Router {
         res.send(filename);
     }));
 
-    // router.delete('/:id', validateDbId('id'), asyncHandler(async (req, res) => {
-    //     const typedReq = req as Request & ReqIdParams;
-    //     const id = typedReq.idParams.id;
+    router.delete('/', asyncHandler(async (req, res) => {
+        const typedReq = req as TypedReq;
+        const media = typedReq.query.media as string | undefined;
 
-    //     await dbQuery<unknown>(db => {
-    //         return db.collection<Report>('reports').deleteOne({
-    //             _id: id
-    //         });
-    //     });
+        if (!media) {
+            throw new InvalidQueryParamError('Media not specified');
+        }
 
-    //     res.json();
-    // }));
+        await dbTransaction<unknown>(async (db, session) => {
+            await db.collection<Report>('reports').updateOne({
+                _id: typedReq.report._id
+            }, {
+                $pull: {
+                    media
+                }
+            }, { session });
+
+            const filename = path.basename(media);
+            await fileSystemService.removeStored(filename, CONFIG.STORED.PATHS.MEDIA);
+        });
+
+        res.json();
+    }));
 
     return router;
 }
