@@ -17,7 +17,7 @@ export interface Report {
     media: string[];
     coordinates: Coordinates[];
     createdAt: Date;
-    lastUpdatedAt: Date;
+    lastUpdatedAt: Date | null;
     upvoters: ObjectId[];
     status: ReportStatus;
 }
