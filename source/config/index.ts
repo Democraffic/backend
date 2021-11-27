@@ -20,7 +20,8 @@ const CONFIG = {
         PORT: process.env.PORT ?? process.env.SERVER_PORT ?? 3000
     },
     MONGO: {
-        URL: process.env.MONGO_URL
+        URI: process.env.MONGO_URL,
+        DB: process.env.MONGO_DB
     },
     LOGGER: {
         DEBUG: process.env.LOGGER_DEBUG === 'true'
