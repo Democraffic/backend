@@ -84,9 +84,10 @@ export default function (): Router {
 
         const bodyValidator = Joi.object({
             title: Joi.string().min(1).max(300),
-            description: Joi.string().min(1).max(300)
+            description: Joi.string().min(1).max(300),
+            status: Joi.string().valid(...Object.values(SolutionStatus))
         }).required().options({ presence: 'optional' });
-        const body: Partial<Pick<Solution, 'title' | 'description'>> = validateBody(bodyValidator, req.body);
+        const body: Partial<Pick<Solution, 'title' | 'description' | 'status'>> = validateBody(bodyValidator, req.body);
 
         const updated = await dbQuery<boolean>(async db => {
             const queryResult = await db.collection<Solution>('solutions').updateOne({ _id: id }, { $set: body });

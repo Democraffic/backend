@@ -86,7 +86,7 @@ export default function (): Router {
             coordinates: Joi.array().items(Joi.object({ latitude: Joi.number(), longitude: Joi.number() })).min(1),
             status: Joi.string().valid(...Object.values(ReportStatus))
         }).required().options({ presence: 'optional' });
-        const body: Partial<Pick<Report, 'title' | 'description' | 'coordinates'>> = validateBody(bodyValidator, req.body);
+        const body: Partial<Pick<Report, 'title' | 'description' | 'coordinates' | 'status'>> = validateBody(bodyValidator, req.body);
 
         if (!!body.description && await checkSpam(body.description)) {
             throw new SpamDetected(undefined, body.description);
