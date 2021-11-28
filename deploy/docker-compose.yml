@@ -7,7 +7,7 @@ services:
     env_file:
       - ./config/api.env
     volumes:
-      - bakend-stored:/server/stored
+      - backend-stored:/server/stored
     ports:
       - "3000:3000"
 
