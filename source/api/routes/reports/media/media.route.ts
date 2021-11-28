@@ -53,20 +53,17 @@ export default function (): Router {
         }
         const tempPath = tempFile.path;
 
-        const extension = tempFile.mimetype.split('/')[1];
-        const filename = `${uuid()}.${extension}`;
-
-        await dbTransaction(async (db, session) => {
-            const toPath = '/' + filesystemService.getStoredPath(`${CONFIG.STORED.PATHS.MEDIA}/${filename}`);
+        const resultPath = await dbTransaction<string>(async (db, session) => {
+            const resultPath = await fileSystemService.uploadToStored(tempPath); // For now hosted on cloud, see commit history to restore good
             await db.collection<Report>('reports').updateOne({ _id: typedReq.report._id }, {
                 $push: {
-                    media: toPath
+                    media: resultPath
                 }
             }, { session });
-            await fileSystemService.moveToStored(tempPath, filename, CONFIG.STORED.PATHS.MEDIA);
+            return resultPath;
         });
 
-        res.send(filename);
+        res.send(resultPath);
     }));
 
     router.delete('/', asyncHandler(async (req, res) => {
@@ -86,8 +83,8 @@ export default function (): Router {
                 }
             }, { session });
 
-            const filename = path.basename(media);
-            await fileSystemService.removeStored(filename, CONFIG.STORED.PATHS.MEDIA);
+            // const filename = path.basename(media);
+            // await fileSystemService.removeStored(filename, CONFIG.STORED.PATHS.MEDIA);
         });
 
         res.json();

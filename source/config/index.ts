@@ -38,6 +38,10 @@ const CONFIG = {
             MEDIA: 'media'
         }
     },
+    CLOUDINARY: {
+        API_KEY: process.env.CLOUDINARY_API_KEY,
+        API_SECRET: process.env.CLOUDINARY_API_SECRET,
+    },
     API_SPAM_URL: process.env.API_SPAM_URL,
     API_VERSION: packageJson.version
 };

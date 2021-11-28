@@ -1,12 +1,19 @@
 import { v4 as uuid } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
 const moveFile = require('move-file');
 
 import { FileSystemError } from '@/errors';
 import logger from '@/utils/logger';
 
 import CONFIG from '@/config';
+
+cloudinary.config({
+    cloud_name: 'dctcxuevv',
+    api_key: CONFIG.CLOUDINARY.API_KEY,
+    api_secret: CONFIG.CLOUDINARY.API_SECRET,
+});
 
 export class FileSystemService {
     private async save(basepath: string, data: string, fileName: string, subpath = ''): Promise<string> {
@@ -72,6 +79,16 @@ export class FileSystemService {
             await fs.promises.mkdir(toDir, { recursive: true });
             await moveFile(tempPath, toPath);
             return toPath;
+        } catch (error) {
+            logger.warning('File system error', error);
+            throw new FileSystemError();
+        }
+    }
+
+    public async uploadToStored(tempPath: string): Promise<string> {
+        try {
+            const result = await cloudinary.uploader.upload(tempPath);
+            return result.url;
         } catch (error) {
             logger.warning('File system error', error);
             throw new FileSystemError();
