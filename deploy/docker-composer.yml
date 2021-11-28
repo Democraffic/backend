@@ -11,5 +11,13 @@ services:
     ports:
       - "3000:3000"
 
+  watchtower:
+    image: containrrr/watchtower
+    env_file:
+      - ./config/watchtower.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_CONFIG_PATH}:/config.json
+
 volumes:
   backend-stored:
