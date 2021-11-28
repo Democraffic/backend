@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  backend:
+    image: euberdeveloper/democraffic-backend:latest
+    restart: always
+    env_file:
+      - ./config/api.env
+    volumes:
+      - bakend-stored:/server/stored
+    ports:
+      - "3000:3000"
+
+volumes:
+  backend-stored:
