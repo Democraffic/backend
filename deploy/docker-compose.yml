@@ -17,7 +17,7 @@ services:
       - ./config/watchtower.env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${DOCKER_CONFIG_PATH}:/config.json
+      - /root/.docker/config.json:/config.json
 
 volumes:
   backend-stored:
