@@ -24,14 +24,14 @@ export interface Budget {
 
 export interface Report {
     _id?: ObjectId;
-    authorId: ObjectId;
+    authorId: string;
     title: string;
     description: string;
     media: string[];
     coordinates: Coordinates[];
     createdAt: Date;
     lastUpdatedAt: Date | null;
-    upvoters: ObjectId[];
+    upvoters: string[];
     status: ReportStatus;
 }
 

@@ -45,26 +45,27 @@ export default function (): Router {
         const bodyValidator = Joi.object({
             title: Joi.string().min(1).max(300),
             description: Joi.string().min(1).max(10000),
-            coordinates: Joi.array().items(Joi.object({ latitude: Joi.number(), longitude: Joi.number() })).min(1)
+            coordinates: Joi.array().items(Joi.object({ latitude: Joi.number(), longitude: Joi.number() })).min(1),
+            authorId: Joi.string().min(1).max(100)
         }).required().options({ presence: 'required' });
 
-        const body: Pick<Report, 'title' | 'description' | 'coordinates'> = validateBody(bodyValidator, req.body);
+        const body: Pick<Report, 'title' | 'description' | 'coordinates' | 'authorId'> = validateBody(bodyValidator, req.body);
 
         if (await checkSpam(body.description)) {
             throw new SpamDetected(undefined, body.description);
         }
 
+        const realBody: Report = {
+            ...body,
+            media: [],
+            upvoters: [],
+            createdAt: new Date(),
+            lastUpdatedAt: null,
+            status: ReportStatus.PROPOSED
+        };
+
         const id = await dbQuery<ObjectId | undefined>(async db => {
-            const queryBody: Report = {
-                ...body,
-                authorId: new ObjectId('507f191e810c19729de860ea'),
-                media: [],
-                upvoters: [],
-                createdAt: new Date(),
-                lastUpdatedAt: null,
-                status: ReportStatus.PROPOSED
-            };
-            const queryResult = await db.collection<Report>('reports').insertOne(queryBody);
+            const queryResult = await db.collection<Report>('reports').insertOne(realBody);
             return queryResult.insertedId;
         });
 
@@ -72,7 +73,7 @@ export default function (): Router {
             throw new InternalServerError('Error in inserting new report');
         }
 
-        res.json(id);
+        res.json({ realBody, _id: id });
     }));
 
     router.patch('/:id', validateDbId('id'), asyncHandler(async (req, res) => {
