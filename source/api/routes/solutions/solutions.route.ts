@@ -49,11 +49,12 @@ export default function (): Router {
         const body: Pick<Solution, 'title' | 'description' | 'reportId' | 'authorId'> = validateBody(bodyValidator, req.body);
 
         const exists = await dbQuery<boolean>(async db => {
-            const count = await db.collection('records').countDocuments({
+            const count = await db.collection('reports').countDocuments({
                 _id: new ObjectId(body.reportId)
             });
             return count > 0;
         });
+        console.log(exists)
         if (!exists) {
             throw new NotFoundError('Report not found');
         }
