@@ -42,10 +42,11 @@ export default function (): Router {
         const bodyValidator = Joi.object({
             title: Joi.string().min(1).max(300),
             description: Joi.string().min(1).max(10000),
-            reportId: Joi.string().min(1)
+            reportId: Joi.string().min(1),
+            authorId: Joi.string().min(1).max(100)
         }).required().options({ presence: 'required' });
 
-        const body: Pick<Solution, 'title' | 'description' | 'reportId'> = validateBody(bodyValidator, req.body);
+        const body: Pick<Solution, 'title' | 'description' | 'reportId' | 'authorId'> = validateBody(bodyValidator, req.body);
 
         const exists = await dbQuery<boolean>(async db => {
             const count = await db.collection('records').countDocuments({
@@ -57,15 +58,15 @@ export default function (): Router {
             throw new NotFoundError('Report not found');
         }
 
+        const queryBody: Solution = {
+            ...body,
+            createdAt: new Date(),
+            lastUpdatedAt: null,
+            status: SolutionStatus.PROPOSED,
+            badget: null
+        };
+
         const id = await dbQuery<ObjectId | undefined>(async db => {
-            const queryBody: Solution = {
-                ...body,
-                authorId: new ObjectId('507f191e810c19729de860ea'),
-                createdAt: new Date(),
-                lastUpdatedAt: null,
-                status: SolutionStatus.PROPOSED,
-                badget: null
-            };
             const queryResult = await db.collection<Solution>('solutions').insertOne(queryBody);
             return queryResult.insertedId;
         });
@@ -74,7 +75,7 @@ export default function (): Router {
             throw new InternalServerError('Error in inserting new solution');
         }
 
-        res.json(id);
+        res.json({...queryBody, _id: id });
     }));
 
     router.patch('/:id', validateDbId('id'), asyncHandler(async (req, res) => {

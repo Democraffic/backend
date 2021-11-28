@@ -73,7 +73,7 @@ export default function (): Router {
             throw new InternalServerError('Error in inserting new report');
         }
 
-        res.json({ realBody, _id: id });
+        res.json({ ...realBody, _id: id });
     }));
 
     router.patch('/:id', validateDbId('id'), asyncHandler(async (req, res) => {

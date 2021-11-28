@@ -38,7 +38,7 @@ export interface Report {
 export interface Solution {
     _id?: ObjectId;
     reportId: ObjectId;
-    authorId: ObjectId;
+    authorId: string;
     title: string;
     description: string;
     createdAt: Date;
