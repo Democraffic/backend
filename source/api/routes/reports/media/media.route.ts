@@ -47,11 +47,14 @@ export default function (): Router {
     router.post('/', upload(CONFIG.TEMP.PATH, 'media'), asyncHandler(async (req, res) => {
         const typedReq = req as TypedReq;
 
-        const filename = `${uuid()}.jpg`;
-        const tempPath = req.file?.path;
-        if (!tempPath) {
-            throw new InternalServerError('File upload failed');
+        const tempFile = req.file;
+        if (!tempFile) {
+            throw new InvalidQueryParamError('No file uploaded');
         }
+        const tempPath = tempFile.path;
+
+        const extension = tempFile.mimetype.split('/')[1];
+        const filename = `${uuid()}.${extension}`;
 
         await dbTransaction(async (db, session) => {
             const toPath = '/' + filesystemService.getStoredPath(`${CONFIG.STORED.PATHS.MEDIA}/${filename}`);
