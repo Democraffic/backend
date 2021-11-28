@@ -7,7 +7,7 @@ import asyncHandler from '@/utils/asyncHandler';
 import { validateDbId } from '@/utils/validatorMiddlewares';
 import { validateBody } from '@/utils/validate';
 
-import { ReqIdParams, Solution, SolutionStatus } from '@/types';
+import { Budget, ReqIdParams, Solution, SolutionStatus } from '@/types';
 import { InternalServerError, NotFoundError } from '@/errors';
 
 export default function (): Router {
@@ -91,6 +91,30 @@ export default function (): Router {
 
         const updated = await dbQuery<boolean>(async db => {
             const queryResult = await db.collection<Solution>('solutions').updateOne({ _id: id }, { $set: body });
+            return queryResult.matchedCount > 0;
+        });
+
+        if (!updated) {
+            throw new NotFoundError('Solution not found');
+        }
+
+        res.json();
+    }));
+
+    router.put('/:id/budget', validateDbId('id'), asyncHandler(async (req, res) => {
+        const typedReq = req as Request & ReqIdParams;
+        const id = typedReq.idParams.id;
+
+        const bodyValidator = Joi.object({
+            cost: Joi.number().min(0).max(1e12),
+            carbonFootprint: Joi.number().min(0).max(1e10),
+            startDate: Joi.date().iso(),
+            endDate: Joi.date().iso()
+        }).allow(null).required().options({ presence: 'optional' });
+        const body: Partial<Pick<Budget, 'cost' | 'carbonFootprint' | 'startDate' | 'endDate'>> = validateBody(bodyValidator, req.body);
+
+        const updated = await dbQuery<boolean>(async db => {
+            const queryResult = await db.collection<Solution>('solutions').updateOne({ _id: id }, { $set: { budget: body } });
             return queryResult.matchedCount > 0;
         });
 
