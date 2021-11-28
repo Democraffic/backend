@@ -2,12 +2,16 @@ import { ObjectId } from '@/services/db.service';
 
 export enum ReportStatus {
     PROPOSED = 'proposed',
-    CONSIDERED = 'considered'
+    CONSIDERED = 'considered',
+    IMPLEMENTING = 'implementing',
+    IMPLEMENTED = 'implemented'
 }
 
 export enum SolutionStatus {
     PROPOSED = 'proposed',
-    CONSIDERED = 'considered'
+    CONSIDERED = 'considered',
+    IMPLEMENTING = 'implementing',
+    IMPLEMENTED = 'implemented'
 }
 
 export interface Coordinates {

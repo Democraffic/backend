@@ -83,7 +83,8 @@ export default function (): Router {
         const bodyValidator = Joi.object({
             title: Joi.string().min(1).max(300),
             description: Joi.string().min(1).max(300),
-            coordinates: Joi.array().items(Joi.object({ latitude: Joi.number(), longitude: Joi.number() })).min(1)
+            coordinates: Joi.array().items(Joi.object({ latitude: Joi.number(), longitude: Joi.number() })).min(1),
+            status: Joi.string().valid(...Object.values(ReportStatus))
         }).required().options({ presence: 'optional' });
         const body: Partial<Pick<Report, 'title' | 'description' | 'coordinates'>> = validateBody(bodyValidator, req.body);
 
