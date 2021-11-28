@@ -120,14 +120,14 @@ export default function (): Router {
     router.put('/:id/upvoters', validateDbId('id'), asyncHandler(async (req, res) => {
         const typedReq = req as Request & ReqIdParams;
         const id = typedReq.idParams.id;
-        const uid = req.headers['x-forwarded-for'] || req.socket.remoteAddress; // just for now, ip address
+        const username = req.body.username; // just for now, username in body
         const action = req.query.action;
 
         if (action == 'up') {
             await dbQuery<unknown>(db => {
                 return db.collection<Report>('reports').updateOne(
                     { _id: id },
-                    { $addToSet: { upvoters: uid as any } }
+                    { $addToSet: { upvoters: username } }
                 )
             });
         }
@@ -135,7 +135,7 @@ export default function (): Router {
             await dbQuery<unknown>(db => {
                 return db.collection<Report>('reports').updateOne(
                     { _id: id },
-                    { $pull: { upvoters: { $in: [uid] } as any } }
+                    { $pull: { upvoters: { $in: [username] } } }
                 )
             });
         }
